@@ -18,7 +18,7 @@ If you want to comment\contribute on this container , are looking for support on
 ```
 docker create \
   --privileged \
-  --name=letsencrypt \
+  --name=fanartstatic \
   -v <path to data>:/config \
   -e PGID=<gid> -e PUID=<uid>  \
   -e EMAIL=<email> \
