@@ -1,5 +1,5 @@
 FROM lsiobase/alpine:3.6
-MAINTAINER sparklyballs, aptalca
+MAINTAINER kodestar
 
 # install packages
 RUN \
