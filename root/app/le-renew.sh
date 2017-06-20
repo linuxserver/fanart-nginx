@@ -2,7 +2,7 @@
 
 . /config/donoteditthisfile.conf
 
-if [ "$VALIDATOR" = "true" ]; then
+if [ "$ORIGVALIDATOR" = "true" ]; then
   echo "<------------------------------------------------->"
   echo
   echo "<------------------------------------------------->"
