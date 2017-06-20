@@ -8,5 +8,5 @@ if [ "$VALIDATOR" = "true" ]; then
   echo "<------------------------------------------------->"
   echo "cronjob running on "$(date)
   echo "Running certbot renew"
-  certbot -n renew --post-hook "sh /app/distribute.sh"
+  certbot -n renew --webroot -w /config/www --post-hook "sh /app/distribute.sh"
 fi
