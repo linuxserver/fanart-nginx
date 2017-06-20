@@ -13,6 +13,7 @@ server {
 		}
 		if ($validator = "true") {
 			root /config/www;
+			default_type “text/plain”;
 		}
 	}
 
