@@ -30,10 +30,12 @@ server {
 	}
 	
 	location /fanart/ {
+	
+		proxy_pass https://fanart.tv/fanart/;
+	
 		proxy_cache my_cache;
 		proxy_cache_revalidate on;
 		proxy_ignore_headers Cache-Control;
-		proxy_pass http://my_upstream;
 		proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
 		proxy_cache_lock on;
 		proxy_cache_valid    200 301 302 86400m;
