@@ -31,8 +31,7 @@ cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
 	cp /etc/crontabs/root /config/crontabs/
 [[ ! -f /config/nginx/proxy.conf ]] && \
 	cp /defaults/proxy.conf /config/nginx/proxy.conf
-[[ ! -f /config/distribute/XX.XX.XX.XX/slave.conf.sample ]] && \
-	cp /defaults/slave.conf.sample /config/distribute/XX.XX.XX.XX/slave.conf.sample	
+cp /defaults/{slave.conf.sample,private} /config/distribute/XX.XX.XX.XX/	
 [[ ! -f /config/distribute/distribute.sh ]] && \
 	cp /defaults/distribute.sh /config/distribute/distribute.sh
 chmod +x /app/le-renew.sh /config/distribute/distribute.sh
