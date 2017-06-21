@@ -15,6 +15,7 @@ If you want to comment\contribute on this container , are looking for support on
 
 ## Usage
 
+### Validator server
 ```
 docker create \
   --privileged \
@@ -23,10 +24,26 @@ docker create \
   -e PGID=<gid> -e PUID=<uid>  \
   -e EMAIL=<email> \
   -e URL=<url> \
-  -e SUBDOMAINS=<subdomains> \
-  -p 443:443 \
+  -p 80:80 -p 443:443 \
   -e TZ=<timezone> \
-  linuxserver/letsencrypt
+  -e VALIDATOR=<true> \
+  -e SLAVEIPS=<IPs,comma,separated> \
+  lsiodev/fanart-nginx
+```
+
+### Slave Server
+```
+docker create \
+  --privileged \
+  --name=fanartstatic \
+  -v <path to data>:/config \
+  -e PGID=<gid> -e PUID=<uid>  \
+  -e URL=<url> \
+  -p 80:80 -p 443:443 \
+  -e TZ=<timezone> \
+  -e VALIDATOR=<false> \
+  -e VALIDATORIP=<ipaddress> \
+  lsiodev/fanart-nginx
 ```
 
 ## Parameters
@@ -37,18 +54,19 @@ So -p 8080:80 would expose port 80 from inside the container to be accessible fr
 http://192.168.x.x:8080 would show you what's running INSIDE the container on port 80.`
 
 
-* `-p 443` - the port(s)
+* `-p 80 -p 443` - the port(s)
 * `-v /config` - all the config files including the webroot reside here
-* `-e URL` - the top url you have control over ("customdomain.com" if you own it, or "customsubdomain.ddnsprovider.com" if dynamic dns)
-* `-e SUBDOMAINS` - subdomains you'd like the cert to cover (comma separated, no spaces) ie. `www,ftp,cloud`
+* `-e URL` - the url for server
 * `-e PGID` for GroupID - see below for explanation
 * `-e PUID` for UserID - see below for explanation
 * `-e TZ` - timezone ie. `America/New_York`  
+* `-e VALIDATOR` - determines whether the server should run letsencrypt
+* `-e VALIDATORIP` - mandatory for slave servers
+* `-e SLAVEIPS` - IPs for cert distribution, comma separated, no spaces. mandatory for the validator server
   
 _Optional settings:_
 * `-e EMAIL` - your e-mail address for cert registration and notifications
 * `-e DHLEVEL` - dhparams bit value (default=2048, can be set to `1024` or `4096`)
-* `-p 80` - Port 80 forwarding is optional (cert validation is done through 443)
-* `-e ONLY_SUBDOMAINS` - if you wish to get certs only for certain subdomains, but not the main domain (main domain may be hosted on another machine and cannot be validated), set this to `true`
+
 
 It is based on alpine linux with s6 overlay, for shell access whilst the container is running do `docker exec -it letsencrypt /bin/bash`.
