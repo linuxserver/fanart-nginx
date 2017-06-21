@@ -1,0 +1,3 @@
+SSHPORT="22"
+SSHUSER="user"
+CONFIGPATH="/home/user/fanartstatic"
