@@ -9,7 +9,7 @@ fi
 
 # make our folders and links
 mkdir -p \
-	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs,cache,distribute} \
+	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs,cache,distribute/XX.XX.XX.XX} \
 	/var/run/fail2ban
 rm -rf /etc/letsencrypt
 ln -s /config/etc/letsencrypt /etc/letsencrypt
@@ -31,6 +31,8 @@ cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
 	cp /etc/crontabs/root /config/crontabs/
 [[ ! -f /config/nginx/proxy.conf ]] && \
 	cp /defaults/proxy.conf /config/nginx/proxy.conf
+[[ ! -f /config/distribute/XX.XX.XX.XX/slave.conf.sample ]] && \
+	cp /defaults/slave.conf.sample /config/distribute/XX.XX.XX.XX/slave.conf.sample	
 [[ ! -f /config/distribute/distribute.sh ]] && \
 	cp /defaults/distribute.sh /config/distribute/distribute.sh
 chmod +x /app/le-renew.sh /config/distribute/distribute.sh
