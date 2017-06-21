@@ -72,11 +72,12 @@ else
   EMAILPARAM="--register-unsafely-without-email"
 fi
 
+# setting the symlink for key location
+rm -rf /config/keys/letsencrypt
+ln -s ../etc/letsencrypt/live/"$URL" /config/keys/letsencrypt
+
 # if the server is set to be the validator
 if [ "$VALIDATOR" = "true" ]; then
-  # setting the symlink for key location
-  rm -rf /config/keys/letsencrypt
-  ln -s ../etc/letsencrypt/live/"$URL" /config/keys/letsencrypt
   # if the server was previously the validator
   if  [ "$ORIGVALIDATOR" = "true" ]; then
     # checking for changes in cert variables, revoking certs if necessary
