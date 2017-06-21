@@ -9,7 +9,7 @@ fi
 
 # make our folders and links
 mkdir -p \
-	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs,cache} \
+	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs,cache,distribute} \
 	/var/run/fail2ban
 rm -rf /etc/letsencrypt
 ln -s /config/etc/letsencrypt /etc/letsencrypt
@@ -31,6 +31,9 @@ cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
 	cp /etc/crontabs/root /config/crontabs/
 [[ ! -f /config/nginx/proxy.conf ]] && \
 	cp /defaults/proxy.conf /config/nginx/proxy.conf
+[[ ! -f /config/distribute/distribute.sh ]] && \
+	cp /defaults/distribute.sh /config/distribute/distribute.sh
+chmod +x /app/le-renew.sh /config/distribute/distribute.sh
 
 # import user crontabs
 rm /etc/crontabs/*
@@ -88,17 +91,15 @@ if [ "$VALIDATOR" = "true" ]; then
   if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
     echo "Generating new certificate"
     certbot certonly --non-interactive --renew-by-default --standalone --rsa-key-size 4096 $EMAILPARAM --agree-tos -d "$URL" && \
-    chmod /app/* && \
     echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf && \
-    /app/distribute.sh
+    /config/distribute/distribute.sh
   else
     echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$ORIGSLAVEIPS\"" > /config/donoteditthisfile.conf
-    chmod +x /app/*
     /app/le-renew.sh
     # check if new IPs are added to slaves, distribute if necessary
     if [ ! "$ORIGSLAVEIPS" = "$SLAVEIPS" ]; then
       echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf
-      /app/distribute.sh
+      /config/distribute/distribute.sh
     fi      
   fi
 # if server is not the validator
@@ -115,7 +116,6 @@ else
     exit 1
   fi
 fi
-  
   
 
 # saving new variables
