@@ -5,15 +5,14 @@ server {
 	set_by_lua $serverurl 'return os.getenv("URL")';
 	server_name $serverurl;
 	
-	location /.well-known/acme-challenge/ {
+	location ^~ /.well-known/acme-challenge/ {
 		set_by_lua $validator 'return os.getenv("VALIDATOR")';
 		if ($validator = "false") {
 			set_by_lua $validatorip 'return os.getenv("VALIDATORIP")';
-			return 301 http://$validatorip$requesturi;
+			return 302 http://$validatorip$requesturi;
 		}
 		if ($validator = "true") {
 			root /config/www;
-			default_type “text/plain”;
 		}
 	}
 
