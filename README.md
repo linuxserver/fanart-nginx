@@ -62,7 +62,7 @@ http://192.168.x.x:8080 would show you what's running INSIDE the container on po
 * `-e TZ` - timezone ie. `America/New_York`  
 * `-e VALIDATOR` - determines whether the server should run letsencrypt
 * `-e VALIDATORIP` - mandatory for slave servers
-* `-e SLAVEIPS` - IPs for cert distribution, comma separated, no spaces. mandatory for the validator server
+* `-e SLAVEIPS` - IPs for cert distribution, comma separated, no spaces. Required for cert distribution to slaves. Leave out in a single server scenario.
   
 _Optional settings:_
 * `-e EMAIL` - your e-mail address for cert registration and notifications
