@@ -97,6 +97,7 @@ if [ "$VALIDATOR" = "true" ]; then
     /config/distribute/distribute.sh
   else
     echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$ORIGSLAVEIPS\"" > /config/donoteditthisfile.conf
+    sleep 1
     /app/le-renew.sh
     # check if new IPs are added to slaves, distribute if necessary
     if [ ! "$ORIGSLAVEIPS" = "$SLAVEIPS" ]; then
