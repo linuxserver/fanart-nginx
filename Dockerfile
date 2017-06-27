@@ -30,7 +30,8 @@ RUN \
 	nginx-mod-rtmp \
 	nginx-mod-stream \
 	nginx-vim \
-	openssh && \
+	openssh \
+	rsync && \
 
 # remove unnecessary fail2ban filters
  rm \
