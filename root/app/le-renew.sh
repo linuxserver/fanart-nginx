@@ -8,5 +8,5 @@ if [ "$ORIGVALIDATOR" = "true" ]; then
   echo "<------------------------------------------------->"
   echo "cronjob running on "$(date)
   echo "Running certbot renew"
-  certbot -n renew --webroot -w /config/www --post-hook "sh /config/distribute/distribute.sh"
+  certbot -n renew --webroot -w /config/www --post-hook "/config/distribute/distribute.sh"
 fi
