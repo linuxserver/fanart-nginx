@@ -107,12 +107,6 @@ if [ "$VALIDATOR" = "true" ]; then
   fi
 # if server is not the validator
 else
-  # if the server was previously the validator
-  if [ "$ORIGVALIDATOR" = "true" ]; then
-    certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/live/"$ORIGURL"/fullchain.pem
-    rm -rf /config/etc
-    mkdir -p /config/etc/letsencrypt
-  fi
   # if certs don't exist, stop the container
   if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
     echo "Recreate the validator container with this machine's IP, then restart this container after certs are copied"
