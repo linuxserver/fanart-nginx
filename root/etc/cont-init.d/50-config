@@ -115,7 +115,8 @@ else
   fi
   # if certs don't exist, stop the container
   if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
-    "Recreate the validator container with this machine's IP, then restart this container after certs are copied"
+    echo "Recreate the validator container with this machine's IP, then restart this container after certs are copied"
+    chown -R abc:abc /config
     exit 1
   fi
 fi
