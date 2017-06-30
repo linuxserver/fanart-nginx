@@ -9,7 +9,7 @@ fi
 
 # make our folders and links
 mkdir -p \
-	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs} \
+	/config/{log/letsencrypt,log/fail2ban,etc/letsencrypt,fail2ban,crontabs,cache,distribute/XX.XX.XX.XX} \
 	/var/run/fail2ban
 rm -rf /etc/letsencrypt
 ln -s /config/etc/letsencrypt /etc/letsencrypt
@@ -31,6 +31,10 @@ cp /config/fail2ban/jail.local /etc/fail2ban/jail.local
 	cp /etc/crontabs/root /config/crontabs/
 [[ ! -f /config/nginx/proxy.conf ]] && \
 	cp /defaults/proxy.conf /config/nginx/proxy.conf
+cp /defaults/{slave.conf,private} /config/distribute/XX.XX.XX.XX/	
+[[ ! -f /config/distribute/distribute.sh ]] && \
+	cp /defaults/distribute.sh /config/distribute/distribute.sh
+chmod +x /app/le-renew.sh /config/distribute/distribute.sh
 
 # import user crontabs
 rm /etc/crontabs/*
@@ -39,7 +43,7 @@ cp /config/crontabs/* /etc/crontabs/
 # create original config file if it doesn't exist
 if [ ! -f "/config/donoteditthisfile.conf" ]; then
 # shellcheck disable=SC2153
-  echo -e "ORIGURL=\"$URL\" ORIGSUBDOMAINS=\"$SUBDOMAINS\" ORIGONLY_SUBDOMAINS=\"$ONLY_SUBDOMAINS\" ORIGDHLEVEL=\"$DHLEVEL\"" > /config/donoteditthisfile.conf
+  echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf
 fi
 
 # load original config settings
@@ -60,24 +64,6 @@ else
   echo "$ORIGDHLEVEL bit DH parameters present"
 fi
 
-# figuring out url only vs url & subdomains vs subdomains only
-if [ ! -z "$SUBDOMAINS" ]; then
-  echo "SUBDOMAINS entered, processing"
-  for job in $(echo "$SUBDOMAINS" | tr "," " "); do
-    export SUBDOMAINS2="$SUBDOMAINS2 -d ${job}.${URL}"
-  done
-  if [ "$ONLY_SUBDOMAINS" = true ]; then
-    URLS="$SUBDOMAINS2"
-    echo "Only subdomains, no URL in cert"
-  else
-    URLS="-d ${URL}${SUBDOMAINS2}"
-  fi
-  echo "Sub-domains processed are: $SUBDOMAINS2"
-else
-  echo "No subdomains defined"
-  URLS="-d $URL"
-fi
-
 # figuring out whether to use e-mail and which
 if [[ $EMAIL == *@* ]]; then
   echo "E-mail address entered: ${EMAIL}"
@@ -89,40 +75,46 @@ fi
 
 # setting the symlink for key location
 rm -rf /config/keys/letsencrypt
-if [ "$ONLY_SUBDOMAINS" = "true" ]; then
-  DOMAIN="$(echo "$SUBDOMAINS" | tr ',' ' ' | awk '{print $1}').${URL}"
-  ln -s ../etc/letsencrypt/live/"$DOMAIN" /config/keys/letsencrypt
-else
-  ln -s ../etc/letsencrypt/live/"$URL" /config/keys/letsencrypt
-fi
+ln -s ../etc/letsencrypt/live/"$URL" /config/keys/letsencrypt
 
-# checking for changes in cert variables, revoking certs if necessary
-if [ ! "$URL" = "$ORIGURL" ] || [ ! "$SUBDOMAINS" = "$ORIGSUBDOMAINS" ] || [ ! "$ONLY_SUBDOMAINS" = "$ORIGONLY_SUBDOMAINS" ]; then
-  echo "Different sub/domains entered than what was used before. Revoking and deleting existing certificate, and an updated one will be created"
-  if [ "$ORIGONLY_SUBDOMAINS" = "true" ]; then
-    ORIGDOMAIN="$(echo "$ORIGSUBDOMAINS" | tr ',' ' ' | awk '{print $1}').${ORIGURL}"
-    certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/live/"$ORIGDOMAIN"/fullchain.pem
-  else
+# if the server is set to be the validator
+if [ "$VALIDATOR" = "true" ]; then
+  # checking for changes in cert variables, revoking certs if necessary
+  if [ ! "$URL" = "$ORIGURL" ]; then
+    echo "Different URL entered than what was used before. Revoking and deleting existing certificate, and an updated one will be created"
     certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/live/"$ORIGURL"/fullchain.pem
+    rm -rf /config/etc
+    mkdir -p /config/etc/letsencrypt
   fi
-  rm -rf /config/etc
-  mkdir -p /config/etc/letsencrypt
-fi
-
-# generating certs if necessary
-if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
-  echo "Generating new certificate"
-# shellcheck disable=SC2086
-  certbot certonly --non-interactive --renew-by-default --standalone --preferred-challenges tls-sni --rsa-key-size 4096 $EMAILPARAM --agree-tos $URLS
-  cd /config/keys/letsencrypt || exit
-  openssl pkcs12 -export -out privkey.pfx -inkey privkey.pem -in cert.pem -certfile chain.pem -passout pass:
+  # generating certs if necessary
+  if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
+    echo "Generating new certificate"
+    certbot certonly --non-interactive --renew-by-default --standalone --rsa-key-size 4096 $EMAILPARAM --agree-tos -d "$URL" && \
+    echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf && \
+    /config/distribute/distribute.sh
+  else
+    echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$ORIGSLAVEIPS\"" > /config/donoteditthisfile.conf
+    sleep 1
+    /app/le-renew.sh
+    # check if new IPs are added to slaves, distribute if necessary
+    if [ ! "$ORIGSLAVEIPS" = "$SLAVEIPS" ]; then
+      echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf
+      /config/distribute/distribute.sh
+    fi      
+  fi
+# if server is not the validator
 else
-  chmod +x /app/le-renew.sh
-  /app/le-renew.sh
+  # if certs don't exist, stop the container
+  if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
+    echo "Recreate the validator container with this machine's IP, then restart this container after certs are copied"
+    chown -R abc:abc /config
+    exit 1
+  fi
 fi
+  
 
 # saving new variables
-echo -e "ORIGURL=\"$URL\" ORIGSUBDOMAINS=\"$SUBDOMAINS\" ORIGONLY_SUBDOMAINS=\"$ONLY_SUBDOMAINS\" ORIGDHLEVEL=\"$DHLEVEL\"" > /config/donoteditthisfile.conf
+echo -e "ORIGURL=\"$URL\" ORIGDHLEVEL=\"$DHLEVEL\" ORIGVALIDATOR=\"$VALIDATOR\" ORIGVALIDATORIP=\"$VALIDATORIP\" ORIGSLAVEIPS=\"$SLAVEIPS\"" > /config/donoteditthisfile.conf
 
 # logfiles needed by fail2ban
 [[ ! -f /config/log/nginx/error.log ]] && \

@@ -29,7 +29,9 @@ RUN \
 	nginx-mod-mail \
 	nginx-mod-rtmp \
 	nginx-mod-stream \
-	nginx-vim && \
+	nginx-vim \
+	openssh \
+	rsync && \
 
 # remove unnecessary fail2ban filters
  rm \

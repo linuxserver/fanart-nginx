@@ -1,9 +1,25 @@
-# listening on port 80 disabled by default, remove the "#" signs to enable
+
 # redirect all traffic to https
 server {
 	listen 80;
-	server_name static.fanart.tv;
-	return 301 https://$host$request_uri;
+	set_by_lua $serverurl 'return os.getenv("URL")';
+	server_name $serverurl;
+	
+	location ^~ /.well-known/acme-challenge/ {
+		set_by_lua $validator 'return os.getenv("VALIDATOR")';
+		if ($validator = "false") {
+			set_by_lua $validatorip 'return os.getenv("VALIDATORIP")';
+			return 302 http://$validatorip$request_uri;
+		}
+		if ($validator = "true") {
+			root /config/www;
+		}
+	}
+
+	location / {
+		return 301 https://$host$request_uri;
+	}
+
 }
 
 # main server block
@@ -13,7 +29,8 @@ server {
 	root /config/www;
 	index index.html index.htm index.php;
 
-	server_name static.fanart.tv;
+	set_by_lua $serverurl 'return os.getenv("URL")';
+	server_name $serverurl;
 
 	ssl_certificate /config/keys/letsencrypt/fullchain.pem;
 	ssl_certificate_key /config/keys/letsencrypt/privkey.pem;
@@ -41,8 +58,7 @@ server {
 		proxy_cache_valid    200 301 302 86400m;
 		proxy_cache_valid 404 30m;
 	}
-	
-	
+
 
 }
 

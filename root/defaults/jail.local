@@ -23,7 +23,7 @@ enabled = false
 
 [nginx-http-auth]
 
-enabled  = true
+enabled  = false
 filter   = nginx-http-auth
 port     = http,https
 logpath  = /config/log/nginx/error.log
@@ -31,7 +31,7 @@ logpath  = /config/log/nginx/error.log
 
 [nginx-badbots]
 
-enabled  = true
+enabled  = false
 port     = http,https
 filter   = nginx-badbots
 logpath  = /config/log/nginx/access.log
@@ -40,7 +40,7 @@ maxretry = 2
 
 [nginx-botsearch]
 
-enabled  = true
+enabled  = false
 port     = http,https
 filter   = nginx-botsearch
 logpath  = /config/log/nginx/access.log
