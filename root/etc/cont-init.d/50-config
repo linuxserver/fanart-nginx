@@ -79,15 +79,12 @@ ln -s ../etc/letsencrypt/live/"$URL" /config/keys/letsencrypt
 
 # if the server is set to be the validator
 if [ "$VALIDATOR" = "true" ]; then
-  # if the server was previously the validator
-  if  [ "$ORIGVALIDATOR" = "true" ]; then
-    # checking for changes in cert variables, revoking certs if necessary
-    if [ ! "$URL" = "$ORIGURL" ]; then
-      echo "Different URL entered than what was used before. Revoking and deleting existing certificate, and an updated one will be created"
-      certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/live/"$ORIGURL"/fullchain.pem
-      rm -rf /config/etc
-      mkdir -p /config/etc/letsencrypt
-    fi
+  # checking for changes in cert variables, revoking certs if necessary
+  if [ ! "$URL" = "$ORIGURL" ]; then
+    echo "Different URL entered than what was used before. Revoking and deleting existing certificate, and an updated one will be created"
+    certbot revoke --non-interactive --cert-path /config/etc/letsencrypt/live/"$ORIGURL"/fullchain.pem
+    rm -rf /config/etc
+    mkdir -p /config/etc/letsencrypt
   fi
   # generating certs if necessary
   if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
