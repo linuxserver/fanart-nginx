@@ -70,3 +70,28 @@ _Optional settings:_
 
 
 It is based on alpine linux with s6 overlay, for shell access whilst the container is running do `docker exec -it letsencrypt /bin/bash`.
+
+## Multiple server setup instructions
+### Adding a new slave
+* Create the slave container and start it.
+* The container will stop after generating the DH parameter due to not existing cert.
+* Add the public ssh key to new slave's `authorized_keys`
+* On the validator, create a new folder for the slave info and copy the sample.conf `cp -R /config-folder-path/distribute/XX.XX.XX.XX /config-folder-path/distribute/<new.slave.ip.address>`
+* Edit the sample.conf with the new slave details
+* Copy the private ssh key into the folder with the name `private` (no password)
+* Recreate the validator container with the new slave's IP address added into the `SLAVEIPS` variable
+* Restart the new slave
+* Add the new slave to the round robin dns
+
+### Removing a slave
+* Remove the slave from the round robin DNS
+* Remove the slave container
+* Recreate the validator with the slave's IP removed from the `SLAVEIPS` variable
+
+### Switching the validator to a different server
+* Recreate all other slaves with the `VALIDATORIP` changed to reflect the new validator server
+* Remove the old validator from the round robin DNS
+* Add the new validator to round robin DNS
+* Create the new validator container (initially with no `SLAVEIPS` defined so folders are created)
+* Create the slave IP named folders under /config/distribute for each slave, with their sample.conf and private ssh keys (as described above)
+* Recreate the new validator with the slave IPs defined
