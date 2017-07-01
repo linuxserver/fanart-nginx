@@ -48,7 +48,7 @@ server {
 	
 	location /fanart/ {
 	
-		proxy_pass https://fanart.tv/fanart/;
+		proxy_pass https://fanart.tv;
 	
 		proxy_cache my_cache;
 		proxy_cache_revalidate on;
