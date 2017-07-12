@@ -2,16 +2,21 @@
 [forumurl]: https://forum.linuxserver.io
 [ircurl]: https://www.linuxserver.io/irc/
 [podcasturl]: https://www.linuxserver.io/podcast/
-
+[appurl]: https://fanart.tv
+[letsurl]: https://github.com/linuxserver/docker-letsencrypt
+[hub]: https://hub.docker.com/r/lsiodev/fanart-nginx/
 [![linuxserver.io](https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver_medium.png)][linuxserverurl]
 
-## This is a Container in active development by the [LinuxServer.io][linuxserverurl] team and is not recommended for use by the general public.
-
-If you want to comment\contribute on this container , are looking for support on any of our other work , or are curious about us in general, check out the following.
-
+The [LinuxServer.io][linuxserverurl] team brings you another container release featuring easy user mapping and community support. Find us for support at:
 * [forum.linuxserver.io][forumurl]
 * [IRC][ircurl] on freenode at `#linuxserver.io`
 * [Podcast][podcasturl] covers everything to do with getting the most from your Linux Server plus a focus on all things Docker and containerisation!
+ 
+# lsiodev/fanart-nginx
+
+[![](https://images.microbadger.com/badges/version/lsiodev/fanart-nginx.svg)](https://microbadger.com/images/lsiodev/fanart-nginx "Get your own version badge on microbadger.com")[![](https://images.microbadger.com/badges/image/lsiodev/fanart-nginx.svg)](https://microbadger.com/images/lsiodev/fanart-nginx "Get your own image badge on microbadger.com")[![Docker Pulls](https://img.shields.io/docker/pulls/lsiodev/fanart-nginx.svg)][hub][![Docker Stars](https://img.shields.io/docker/stars/lsiodev/fanart-nginx.svg)][hub][![Build Status](https://ci.linuxserver.io/buildStatus/icon?job=Docker-Builders/lsiodev/fanart-nginx)](https://ci.linuxserver.io/job/Docker-Builders/job/lsiodev/job/fanart-nginx/)
+
+This docker image, forked from our [letsencrypt image][letsurl], was developed by the [LinuxServer.io][linuxserverurl] team specfically for use by [fanart.tv][appurl] and is not recommended for use by the general public.
 
 ## Usage
 
