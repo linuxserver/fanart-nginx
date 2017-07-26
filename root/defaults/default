@@ -58,6 +58,32 @@ server {
 		proxy_cache_valid    200 301 302 86400m;
 		proxy_cache_valid 404 30m;
 	}
+	
+        location /preview/ {
+
+                proxy_pass https://fanart.tv;
+
+                proxy_cache my_cache;
+                proxy_cache_revalidate on;
+                proxy_ignore_headers Cache-Control;
+                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+                proxy_cache_lock on;
+                proxy_cache_valid    200 301 302 86400m;
+                proxy_cache_valid 404 30m;
+        }
+
+        location /bigpreview/ {
+
+                proxy_pass https://fanart.tv;
+
+                proxy_cache my_cache;
+                proxy_cache_revalidate on;
+                proxy_ignore_headers Cache-Control;
+                proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+                proxy_cache_lock on;
+                proxy_cache_valid    200 301 302 86400m;
+                proxy_cache_valid 404 30m;
+        }
 
 
 }
